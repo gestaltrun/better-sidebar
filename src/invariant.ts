@@ -6,7 +6,7 @@
 /* jscpd:ignore-start */
 import type { Context } from './context-types.ts'
 
-const PACKAGE_NAME = 'dsh-better-sidebar'
+const PACKAGE_NAME = '@gestaltrun/dsh-better-sidebar'
 
 /** Cordis companion plugin name. */
 export const name = 'dsh-better-sidebar-invariant'

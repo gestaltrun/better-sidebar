@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # =============================================================================
-# dsh-better-sidebar 聚合双挂载冒烟（CI + 本地）：
+# @gestaltrun/dsh-better-sidebar 聚合双挂载冒烟（CI + 本地）：
 #
 #   场景：一个聚合 bundle（tests/fixtures/aggregate-better-sidebar）先以独立
-#   条目 id 挂载 dsh-better-sidebar，插件自身的 bundle patch 后到 —— 旧行为
+#   条目 id 挂载 @gestaltrun/dsh-better-sidebar，插件自身的 bundle patch 后到 —— 旧行为
 #   两个实例都注册 /sidebar/api，整个插件树启动失败（duplicate prefix
 #   route）；新行为插件行检测到已有启用中的同包名挂载后自动 disabled，由
 #   聚合行接管 sidebar。
@@ -22,7 +22,7 @@
 # 环境变量（均可省略）：
 #   DSH_CMD        dsh 命令；缺省 PATH 上的 `dsh`，回退 npx 拉官方包
 #                  （同 e2e-mount.sh）
-#   TARBALL        插件 tarball；缺省仓库根 dsh-better-sidebar-*.tgz（须已 pack）
+#   TARBALL        插件 tarball；缺省仓库根 gestaltrun-dsh-better-sidebar-*.tgz（须已 pack）
 #   PORT           固定端口（默认 0 = OS 分配，从日志解析 URL）
 #   DSH_HOME_BASE  scratch 根目录（默认系统临时目录）。脚本始终在其下新建
 #                  本调用拥有的独立子目录，只写入/删除该子目录；调用方提供

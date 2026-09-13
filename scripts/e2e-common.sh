@@ -57,9 +57,9 @@ e2e_resolve_dsh_cmd() {
 # 过期产物上。未找到候选时返回非零，由调用方按各自文案 die。
 e2e_resolve_tarball() {
   if [ -z "${TARBALL:-}" ]; then
-    TARBALL="$(ls -t "$ROOT"/dsh-better-sidebar-*.tgz 2>/dev/null | head -1 || true)"
+    TARBALL="$(ls -t "$ROOT"/gestaltrun-dsh-better-sidebar-*.tgz 2>/dev/null | head -1 || true)"
     local count
-    count="$(ls "$ROOT"/dsh-better-sidebar-*.tgz 2>/dev/null | wc -l | tr -d ' ' || true)"
+    count="$(ls "$ROOT"/gestaltrun-dsh-better-sidebar-*.tgz 2>/dev/null | wc -l | tr -d ' ' || true)"
     [ "$count" -le 1 ] || warn "发现 $count 个 tarball，按 mtime 选用最新：$(basename "$TARBALL")（建议清理其余）"
   fi
   [ -n "$TARBALL" ] && [ -f "$TARBALL" ]
@@ -134,7 +134,7 @@ allowBuilds:
   protobufjs: true
 
 minimumReleaseAgeExclude:
-  - dsh-better-sidebar
+  - '@gestaltrun/dsh-better-sidebar'
   - '@deepseek-ai/*'
 EOF
 }

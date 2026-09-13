@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# dsh-better-sidebar 挂载冒烟编排（CI + 本地）：
+# @gestaltrun/dsh-better-sidebar 挂载冒烟编排（CI + 本地）：
 #
 #   1. 用官方 CLI 把 npm 打包产物（tarball）真实挂载进一个全新 scratch
 #      profile（`dsh plugin --profile web add file:<tarball>`，触发
@@ -14,7 +14,7 @@
 #
 # 环境变量（均可省略）：
 #   DSH_CMD        dsh 命令；缺省 PATH 上的 `dsh`，回退 npx 拉官方包
-#   TARBALL        插件 tarball；缺省仓库根 dsh-better-sidebar-*.tgz（须已 pack）
+#   TARBALL        插件 tarball；缺省仓库根 gestaltrun-dsh-better-sidebar-*.tgz（须已 pack）
 #   PORT           固定端口（默认 0 = OS 分配，从日志解析 URL）
 #   DSH_HOME_BASE  覆盖 scratch 根目录（默认系统临时目录）。脚本始终在其下
 #                  新建本调用拥有的独立子目录，只写入/删除该子目录；调用方
@@ -44,7 +44,7 @@ e2e_require_cmd pnpm "dsh plugin 转发给 pnpm"
 
 e2e_resolve_dsh_cmd
 
-e2e_resolve_tarball || die "找不到 tarball（TARBALL 或 \$ROOT/dsh-better-sidebar-*.tgz）——先运行 pnpm build && pnpm pack"
+e2e_resolve_tarball || die "找不到 tarball（TARBALL 或 \$ROOT/gestaltrun-dsh-better-sidebar-*.tgz）——先运行 pnpm build && pnpm pack"
 TARBALL="$(cd "$(dirname "$TARBALL")" && pwd)/$(basename "$TARBALL")"
 say "tarball: $TARBALL"
 
@@ -72,18 +72,18 @@ e2e_write_profile "$PROFILE_DIR"
 say "执行 dsh plugin --profile web add file:$TARBALL ..."
 $DSH_CMD plugin --profile web add "file:$TARBALL"
 
-# 步骤 3：校验挂载生效（dsh.profile.bundles 含 dsh-better-sidebar）
+# 步骤 3：校验挂载生效（dsh.profile.bundles 含 @gestaltrun/dsh-better-sidebar）
 if ! node -e '
   const fs = require("fs");
   const p = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
   const bundles = p.dsh?.profile?.bundles ?? [];
-  process.exit(bundles.includes("dsh-better-sidebar") ? 0 : 1);
+  process.exit(bundles.includes("@gestaltrun/dsh-better-sidebar") ? 0 : 1);
 ' "$PROFILE_DIR/package.json"; then
-  warn "dsh-better-sidebar 未出现在 dsh.profile.bundles 中——挂载未注册"
+  warn "@gestaltrun/dsh-better-sidebar 未出现在 dsh.profile.bundles 中——挂载未注册"
   cat "$PROFILE_DIR/package.json"
   exit 1
 fi
-say "挂载已注册：dsh.profile.bundles 包含 dsh-better-sidebar"
+say "挂载已注册：dsh.profile.bundles 包含 @gestaltrun/dsh-better-sidebar"
 
 # 步骤 4：启动 dsh web（--port 0 = OS 分配，避免端口冲突；keyless 可起）
 say "启动 dsh web（port=${PORT}）..."

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # =============================================================================
-# dsh-better-sidebar 一键安装脚本（官方 CLI 方式，macOS / Linux / Windows Git Bash）
+# @gestaltrun/dsh-better-sidebar 一键安装脚本（官方 CLI 方式，macOS / Linux / Windows Git Bash）
 #
 # 通过 DSH 官方插件命令安装 npm 包并自动挂载：
-#   dsh plugin --profile web add dsh-better-sidebar@<version>
+#   dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@<version>
 #
 # 包内声明了 dsh.bundle.patch（cordis.patch.yml）：CLI 的 bundle 协调会把它
 # 自动加进 profile 的 dsh.profile.bundles，下次启动即挂载——无需手动写
@@ -14,7 +14,7 @@
 #   bash scripts/install.sh [版本] [--restart] [--dry-run]
 #   bash scripts/install.sh --repair [--profile <名>] [--dry-run]
 #
-#   版本        npm 版本号/范围，缺省为 latest（自动解析为 ^<最新>）。
+#   版本        npm 版本号/范围，缺省为 next（自动解析为 ^<最新>）。
 #               示例：0.10.2、^0.10.2、~0.10.2、latest
 #   --repair    修复模式：不重装插件，只确保 profile 的 pnpm-workspace.yaml
 #               放行 node-pty 构建脚本，然后重跑 pnpm install + pnpm rebuild
@@ -38,8 +38,8 @@
 #   minimumReleaseAgeExclude（幂等），放行本插件，避免"重跑一次才成功"。
 # - 老版本（<0.10.2）用手动挂载行，bundle 通道激活后需移除，否则双挂载
 #   （Node 半挂两次、页面两个侧边栏）。脚本会幂等移除 better-sidebar 挂载行。
-# - 回滚：dsh plugin --profile web remove dsh-better-sidebar，或把 profile 依赖
-#   改回 "dsh-better-sidebar": "link:<路径>" 再 pnpm install。
+# - 回滚：dsh plugin --profile web remove @gestaltrun/dsh-better-sidebar，或把 profile 依赖
+#   改回 "@gestaltrun/dsh-better-sidebar": "link:<路径>" 再 pnpm install。
 # =============================================================================
 set -euo pipefail
 
@@ -47,13 +47,13 @@ set -euo pipefail
 for arg in "$@"; do
   if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
     cat <<'EOF'
-dsh-better-sidebar 一键安装 / 依赖修复脚本
+@gestaltrun/dsh-better-sidebar 一键安装 / 依赖修复脚本
 
 用法：
   bash scripts/install.sh [版本] [--restart] [--dry-run] [--profile <名>]
   bash scripts/install.sh --repair [--profile <名>] [--dry-run]
 
-  版本         npm 版本号/范围，缺省 latest（自动解析为最新）。示例：0.10.2、^0.10.2、latest
+  版本         npm 版本号/范围，缺省 next（自动解析为最新）。示例：0.10.2、^0.10.2、latest
   --repair     修复模式：确保 profile 放行 node-pty 构建脚本并重装 node-pty（终端提示依赖加载失败时用）
   --profile    目标 profile 名（缺省 web）
   --restart    装完后尝试 `pm2 restart dsh-web`（无 pm2 时仅提示）
@@ -67,7 +67,7 @@ done
 
 DSH_HOME="${DSH_HOME:-${HOME:-${USERPROFILE:-}}/.dsh}"
 REGISTRY="${REGISTRY:-https://registry.npmjs.org}"
-PKG="dsh-better-sidebar"
+PKG="@gestaltrun/dsh-better-sidebar"
 DSH_CMD="${DSH_CMD:-dsh}"
 
 RESTART=false
@@ -118,11 +118,11 @@ if (!/^\s*allowBuilds:\s*$/m.test(t)) {
   }
 }
 // minimumReleaseAgeExclude：放行本插件（版本无关），避免 <24h 新版本被拒
-if (!/^\s*-\s+dsh-better-sidebar\s*$/m.test(t)) {
+if (!/^\s*-\s+\x22@gestaltrun\/dsh-better-sidebar\x22\s*$/m.test(t)) {
   if (/^\s*minimumReleaseAgeExclude:\s*$/m.test(t)) {
-    t = t.replace(/^(\s*minimumReleaseAgeExclude:\s*)$/m, "$1\n  - dsh-better-sidebar");
+    t = t.replace(/^(\s*minimumReleaseAgeExclude:\s*)$/m, "$1\n  - \x22@gestaltrun/dsh-better-sidebar\x22");
   } else {
-    t += "\nminimumReleaseAgeExclude:\n  - dsh-better-sidebar\n";
+    t += "\nminimumReleaseAgeExclude:\n  - \x22@gestaltrun/dsh-better-sidebar\x22\n";
   }
 }
 if (t !== before) fs.writeFileSync(p, t);
@@ -135,22 +135,22 @@ console.log(t === before ? "unchanged" : "updated");
 
 # 解析用户给的版本 -> CLI 要用的 npm spec（"x.y.z" / "^x.y.z" / latest）
 resolve_spec() {
-  local given="${1:-latest}"
+  local given="${1:-next}"
   case "$given" in
-    latest)
+    latest|next)
       local v=""
       if command -v npm >/dev/null 2>&1; then
-        v="$(npm view "$PKG" version --registry="$REGISTRY" 2>/dev/null)" || v=""
+        v="$(npm view "$PKG@$given" version --registry="$REGISTRY" 2>/dev/null)" || v=""
       fi
       if [ -z "$v" ] && command -v pnpm >/dev/null 2>&1; then
-        v="$(pnpm view "$PKG" version --registry="$REGISTRY" 2>/dev/null)" || v=""
+        v="$(pnpm view "$PKG@$given" version --registry="$REGISTRY" 2>/dev/null)" || v=""
       fi
       if [ -n "$v" ]; then
         printf '%s' "$v"
       else
-        warn "无法联网解析最新版本（npm/pnpm 查询失败），回退为 latest，由 pnpm 直接解析。"
+        warn "无法联网解析最新版本（npm/pnpm 查询失败），保留 ${given} 标签，由 pnpm 直接解析。"
         warn "若已知版本号，可显式传入：bash scripts/install.sh 0.10.2"
-        printf 'latest'
+        printf '%s' "$given"
       fi
       ;;
     *) printf '%s' "$given" ;;
@@ -224,7 +224,7 @@ if ! node -e '
   const bundles = p.dsh?.profile?.bundles ?? [];
   process.exit(bundles.includes(process.argv[2]) ? 0 : 1);
 ' "$PROFILE_DIR/package.json" "$PKG"; then
-  warn "dsh-better-sidebar 未出现在 dsh.profile.bundles 中——挂载未注册。"
+  warn "@gestaltrun/dsh-better-sidebar 未出现在 dsh.profile.bundles 中——挂载未注册。"
   warn "若上面的 pnpm 输出提示 ignored build scripts，请确认 $WS_YML 的 allowBuilds 后重跑本脚本。"
   exit 1
 fi

@@ -1,8 +1,8 @@
 ﻿## =============================================================================
-# dsh-better-sidebar 一键安装脚本（官方 CLI 方式，Windows PowerShell 5.1+ / pwsh）
+# @gestaltrun/dsh-better-sidebar 一键安装脚本（官方 CLI 方式，Windows PowerShell 5.1+ / pwsh）
 #
 # 通过 DSH 官方插件命令安装 npm 包并自动挂载：
-#   dsh plugin --profile web add dsh-better-sidebar@<version>
+#   dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@<version>
 #
 # 包内声明了 dsh.bundle.patch（cordis.patch.yml）：CLI 的 bundle 协调会把它
 # 自动加进 profile 的 dsh.profile.bundles，下次启动即挂载——无需手动写
@@ -11,10 +11,10 @@
 #
 # 用法（任选其一）：
 #   # 默认最新版
-#   $script = (irm 'https://raw.githubusercontent.com/omdsh-dev/DSH-better-sidebar/main/scripts/install.ps1').TrimStart([char]0xFEFF)
+#   $script = (irm 'https://raw.githubusercontent.com/gestaltrun/better-sidebar/main/scripts/install.ps1').TrimStart([char]0xFEFF)
 #   & ([scriptblock]::Create($script))
 #   # 指定版本 / 装完重启
-#   $script = (irm 'https://raw.githubusercontent.com/omdsh-dev/DSH-better-sidebar/main/scripts/install.ps1').TrimStart([char]0xFEFF)
+#   $script = (irm 'https://raw.githubusercontent.com/gestaltrun/better-sidebar/main/scripts/install.ps1').TrimStart([char]0xFEFF)
 #   & ([scriptblock]::Create($script)) -Version 0.10.2 -Restart
 #   # 本地保存后运行
 #   powershell -ExecutionPolicy Bypass -File install.ps1 -Version 0.10.2 -DryRun
@@ -22,7 +22,7 @@
 #   powershell -ExecutionPolicy Bypass -File install.ps1 -Repair
 #
 # 参数：
-#   -Version    npm 版本号/范围，缺省 latest（自动解析为最新）。
+#   -Version    npm 版本号/范围，缺省 next（自动解析为最新）。
 #   -Repair     修复模式：不重装插件，只确保 profile 的 pnpm-workspace.yaml
 #               放行 node-pty 构建脚本，然后重跑 pnpm install + pnpm rebuild
 #               node-pty。
@@ -52,7 +52,7 @@ param(
   [string]$Profile = 'web'
 )
 
-$PKG = 'dsh-better-sidebar'
+$PKG = '@gestaltrun/dsh-better-sidebar'
 $REGISTRY = if ($env:REGISTRY) { $env:REGISTRY } else { 'https://registry.npmjs.org' }
 
 # DSH_HOME：DSH_HOME 环境变量 > %USERPROFILE% > $HOME
@@ -74,18 +74,19 @@ function Die([string]$m)  { Write-Host "[error] $m" -ForegroundColor Red; exit 1
 # 解析版本 -> npm spec（"x.y.z" / "^x.y.z" / latest）
 function Resolve-Spec {
   param([string]$Given)
-  if ([string]::IsNullOrWhiteSpace($Given) -or $Given -eq 'latest') {
+  if ([string]::IsNullOrWhiteSpace($Given)) { $Given = 'next' }
+  if ($Given -eq 'latest' -or $Given -eq 'next') {
     $v = $null
     foreach ($tool in @('npm', 'pnpm')) {
       if (Get-Command $tool -ErrorAction SilentlyContinue) {
-        $v = (& $tool view $PKG version "--registry=$REGISTRY" 2>$null | Select-Object -Last 1)
+        $v = (& $tool view "$PKG@$Given" version "--registry=$REGISTRY" 2>$null | Select-Object -Last 1)
         if ($v) { break }
       }
     }
     if ($v) { return ([string]$v).Trim() }
-    Warn '无法联网解析最新版本（npm/pnpm 查询失败），回退为 latest，由 pnpm 直接解析。'
+    Warn "无法联网解析版本（npm/pnpm 查询失败），保留 $Given 标签，由 pnpm 直接解析。"
     Warn '若已知版本号，可显式传入：-Version 0.10.2'
-    return 'latest'
+    return $Given
   }
   return $Given
 }
@@ -116,11 +117,11 @@ if (!/^\s*allowBuilds:\s*$/m.test(t)) {
     }
   }
 }
-if (!/^\s*-\s+dsh-better-sidebar\s*$/m.test(t)) {
+if (!/^\s*-\s+\x22@gestaltrun\/dsh-better-sidebar\x22\s*$/m.test(t)) {
   if (/^\s*minimumReleaseAgeExclude:\s*$/m.test(t)) {
-    t = t.replace(/^(\s*minimumReleaseAgeExclude:\s*)$/m, "$1\n  - dsh-better-sidebar");
+    t = t.replace(/^(\s*minimumReleaseAgeExclude:\s*)$/m, "$1\n  - \x22@gestaltrun/dsh-better-sidebar\x22");
   } else {
-    t += "\nminimumReleaseAgeExclude:\n  - dsh-better-sidebar\n";
+    t += "\nminimumReleaseAgeExclude:\n  - \x22@gestaltrun/dsh-better-sidebar\x22\n";
   }
 }
 if (t !== before) fs.writeFileSync(p, t);
@@ -233,7 +234,7 @@ if ($addCode -ne 0) {
 $pkgJson = Get-Content -Raw (Join-Path $PROFILE_DIR 'package.json') | ConvertFrom-Json
 $bundles = $pkgJson.dsh.profile.bundles
 if ($bundles -notcontains $PKG) {
-  Warn 'dsh-better-sidebar 未出现在 dsh.profile.bundles 中——挂载未注册。'
+  Warn '@gestaltrun/dsh-better-sidebar 未出现在 dsh.profile.bundles 中——挂载未注册。'
   Warn "若上面的 pnpm 输出提示 ignored build scripts，请确认 $WS_YML 的 allowBuilds 后重跑本脚本。"
   exit 1
 }

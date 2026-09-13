@@ -43,10 +43,12 @@ jobs:
         run: pnpm typecheck
       - name: Lint
         run: pnpm lint
-      - name: Test
-        run: pnpm test
+      - name: Verify scoped release guards
+        run: pnpm test:release
       - name: Build
         run: pnpm build
+      - name: Test
+        run: pnpm test
       # The consumer-facing declaration surface guard: a browser-only plugin
       # (no @types/node, skipLibCheck: false) must type-check against the
       # shipped lib/types. Runs AFTER build (it reads the built output).
@@ -112,10 +114,12 @@ jobs:
       # No retries: they would hide a real regression instead of removing the
       # race. The cost is wall-clock (the Windows step runs several minutes
       # against a 30-minute job budget), not signal.
-      - name: Test
-        run: pnpm test:windows
+      - name: Verify scoped release guards
+        run: pnpm test:release
       - name: Build
         run: pnpm build
+      - name: Test
+        run: pnpm test:windows
       - name: Check consumer type surface
         run: pnpm check:consumer-types
 

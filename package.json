@@ -1,14 +1,15 @@
 {
-  "name": "dsh-better-sidebar",
-  "version": "0.19.1",
+  "name": "@gestaltrun/dsh-better-sidebar",
+  "version": "0.19.1-gestaltrun.0",
   "description": "DSH web plugin: a VSCode-like right sidebar (explorer / editor / terminal / git / browser), isolated per conversation session. Exposes a service for other plugins to register sidebar tabs and file viewers.",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/omdsh-dev/DSH-better-sidebar"
+    "url": "https://github.com/gestaltrun/better-sidebar"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
@@ -74,18 +75,20 @@
   ],
   "scripts": {
     "build": "node -e \"require('node:fs').rmSync('lib',{recursive:true,force:true})\" && tsc -p tsconfig.build.json && tsdown",
-    "prepublishOnly": "pnpm build",
+    "prepublishOnly": "node scripts/release-package.mjs guard",
     "typecheck": "tsc --noEmit",
     "bundle": "tsdown",
     "watch": "tsdown --watch",
-    "prepare": "tsdown",
     "test": "vitest run",
     "test:windows": "vitest run --maxWorkers=1",
     "test:mount": "bash scripts/e2e-mount.sh",
     "test:mount:aggregate": "bash scripts/e2e-aggregate-mount.sh",
     "clean": "node -e \"require('node:fs').rmSync('lib',{recursive:true,force:true})\"",
     "check:consumer-types": "bash scripts/check-consumer-types.sh",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "release:pack": "node scripts/release-package.mjs pack",
+    "release:publish": "node scripts/release-package.mjs publish",
+    "test:release": "node --test tests/release-package.check.mjs"
   },
   "license": "MIT",
   "peerDependencies": {

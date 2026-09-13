@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)))
 const INSTALLER = resolve(ROOT, 'scripts/install.ps1')
-const INSTALLER_URL = 'https://raw.githubusercontent.com/omdsh-dev/DSH-better-sidebar/main/scripts/install.ps1'
+const INSTALLER_URL = 'https://raw.githubusercontent.com/gestaltrun/better-sidebar/main/scripts/install.ps1'
 const tempDirs: string[] = []
 const hasPwsh = process.platform === 'win32'
   && spawnSync('pwsh', ['-NoLogo', '-NoProfile', '-Command', 'exit 0'], { stdio: 'ignore' }).status === 0
@@ -60,7 +60,7 @@ function assertInMemoryInvocation(executable: string): void {
   const output = `${result.stdout}\n${result.stderr}`
 
   expect(result.status, output).toBe(0)
-  expect(output).toContain('dsh-better-sidebar@0.11.0')
+  expect(output).toContain('@gestaltrun/dsh-better-sidebar@0.11.0')
   expect(output).toContain('[dry-run]')
   expect(output).not.toContain('False False')
 }
@@ -126,7 +126,7 @@ describe('PowerShell installer entry points', { timeout: 30_000 }, () => {
     const output = `${result.stdout}\n${result.stderr}`
 
     expect(result.status, output).toBe(0)
-    expect(output).toContain('dsh-better-sidebar@0.11.0')
+    expect(output).toContain('@gestaltrun/dsh-better-sidebar@0.11.0')
     expect(output).toContain('[dry-run]')
   })
 

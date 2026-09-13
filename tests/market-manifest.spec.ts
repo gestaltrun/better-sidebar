@@ -1,26 +1,4 @@
-/**
- * DSH community-market compatibility guard: keeps the npm package inside the
- * "Host 接受什么" rules of dsh-community-market's
- * docs/install-and-uninstall.zh.md, so the catalog's verified npm install
- * target (repository_backlink) keeps passing for this package:
- *
- * - no `cordis` entry in dependencies / peerDependencies /
- *   optionalDependencies (the market preview hard-rejects the legacy Cordis
- *   runtime name in any of the three fields, even when optional),
- * - no install lifecycle scripts (preinstall / install / postinstall /
- *   prepare) in the **packed** manifest — the repo manifest legitimately
- *   keeps `prepare` for git-install builds; pnpm strips it from the published
- *   surface, and this guard verifies that stripped surface stays clean,
- * - a safe, bund-visible `dsh.bundle.patch` path (`./cordis.patch.yml`),
- * - a repository identity that normalizes to a credential-free HTTPS GitHub
- *   owner/repo URL (the catalog ↔ npm backlink comparison),
- * - an exact SemVer version (no ranges, no tags; a prerelease suffix is
- *   allowed — prerelease releases ride the npm `alpha` dist-tag and are not
- *   the market's verified `latest` install target until a stable cut).
- *
- * The packed-manifest checks run `pnpm pack` into a temp dir (the `prepare`
- * script rebuilds the gitignored lib/, like the release flow does).
- */
+/** Published package checks for the DSH market install policy. */
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -46,7 +24,7 @@ const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8')) as {
 const LIFECYCLE_SCRIPTS = ['preinstall', 'install', 'postinstall', 'prepare'] as const
 
 /** Exact SemVer: exactly three numeric segments, optional prerelease suffix
- *  (no range / tag — prerelease cuts publish under the npm `alpha` dist-tag). */
+ *  (no range / tag — prerelease cuts publish under the npm `next` dist-tag). */
 const EXACT_SEMVER = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u
 
 /** Read `package.json` from a fresh `pnpm pack` tarball (the publish surface). */
@@ -60,7 +38,7 @@ function packedManifest(): Record<string, unknown> {
     // Never hand tar an absolute Windows path: Git Bash's GNU tar reads the
     // drive-letter colon as a remote-host spec ("Cannot connect to C:").
     // Run it from the pack dir with the bare tarball name instead.
-    execFileSync('tar', ['-xzf', `${pkg.name}-${pkg.version}.tgz`, 'package/package.json'], { cwd: dir, stdio: 'pipe' })
+    execFileSync('tar', ['-xzf', `${pkg.name.replace(/^@/u, '').replace('/', '-')}-${pkg.version}.tgz`, 'package/package.json'], { cwd: dir, stdio: 'pipe' })
     return JSON.parse(readFileSync(join(dir, 'package/package.json'), 'utf8')) as Record<string, unknown>
   } finally {
     rmSync(dir, { recursive: true, force: true })
@@ -111,7 +89,7 @@ describe('DSH community-market manifest compatibility', () => {
     expect(url.pathname.split('/').filter(Boolean)).toHaveLength(2)
   })
 
-  it('declares an exact SemVer version (no range or tag; prerelease allowed for the alpha track)', () => {
+  it('declares an exact SemVer version (no range or tag; prerelease allowed for the prerelease track)', () => {
     expect(pkg.version).toMatch(EXACT_SEMVER)
   })
 })

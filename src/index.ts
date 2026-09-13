@@ -61,7 +61,7 @@ import { readPersistedSession } from './session-store.ts'
 export { Config }
 export type { SidebarConfig, ResolvedSidebarConfig }
 // Re-export the Context augmentation (`declare module '@deepseek-ai/cordis'`)
-// so consumers `import type {} from 'dsh-better-sidebar'` and gain
+// so consumers `import type {} from '@gestaltrun/dsh-better-sidebar'` and gain
 // `ctx.betterSidebar`; the Context re-export below is the vendored cordis
 // Context intersected with the structural service faces.
 // Also re-export the service descriptor types so consumers can type their

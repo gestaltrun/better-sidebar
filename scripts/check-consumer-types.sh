@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Consumer-facing type surface check: build a tiny standalone consumer that
-# imports `dsh-better-sidebar/client/service` WITHOUT @types/node and with
+# imports `@gestaltrun/dsh-better-sidebar/client/service` WITHOUT @types/node and with
 # skipLibCheck: false, then type-check it with the repo's tsc.
 #
 # This is the exact scenario the v0.12.0 API work cares about: the shipped
@@ -27,7 +27,7 @@ fi
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
-mkdir -p "$WORK/node_modules"
+mkdir -p "$WORK/node_modules/@gestaltrun"
 # Resolve link targets to their PHYSICAL path first: under pnpm,
 # node_modules/@deepseek-ai/cordis is itself a symlink/junction into .pnpm,
 # and on Windows a native symlink pointing AT a junction does not traverse
@@ -35,14 +35,14 @@ mkdir -p "$WORK/node_modules"
 # (GetFinalPathNameByHandle on Windows) expands junctions, which bash-level
 # resolution may leave untouched; node is guaranteed here (tsc runs below).
 resolve_dir() { node -e 'process.stdout.write(require("node:fs").realpathSync.native(process.argv[1]))' "$1"; }
-ln -s "$(resolve_dir "$(pwd)")" "$WORK/node_modules/dsh-better-sidebar"
+ln -s "$(resolve_dir "$(pwd)")" "$WORK/node_modules/@gestaltrun/dsh-better-sidebar"
 # The vendored cordis base (and, through its realpath, cosmokit / standard-schema)
 # must resolve so the consumer can type `Context` against the DSH runtime scope.
 mkdir -p "$WORK/node_modules/@deepseek-ai"
 ln -s "$(resolve_dir "$(pwd)/node_modules/@deepseek-ai/cordis")" "$WORK/node_modules/@deepseek-ai/cordis"
 # Loud guard: both links must resolve to a package root, or tsc below would
 # report misleading module-resolution errors.
-for pkg_json in "$WORK/node_modules/dsh-better-sidebar/package.json" "$WORK/node_modules/@deepseek-ai/cordis/package.json"; do
+for pkg_json in "$WORK/node_modules/@gestaltrun/dsh-better-sidebar/package.json" "$WORK/node_modules/@deepseek-ai/cordis/package.json"; do
   if [ ! -f "$pkg_json" ]; then
     echo "[check-consumer-types] FAIL: $pkg_json does not resolve (broken link). Link layer:" >&2
     ls -la "$WORK/node_modules" "$WORK/node_modules/@deepseek-ai" >&2 || true
@@ -51,14 +51,14 @@ for pkg_json in "$WORK/node_modules/dsh-better-sidebar/package.json" "$WORK/node
 done
 
 cat > "$WORK/check.ts" <<'EOF'
-import { SIDEBAR_FEATURES, SIDEBAR_SERVICE_VERSION } from 'dsh-better-sidebar/client/service'
-import type {} from 'dsh-better-sidebar/client/service'
+import { SIDEBAR_FEATURES, SIDEBAR_SERVICE_VERSION } from '@gestaltrun/dsh-better-sidebar/client/service'
+import type {} from '@gestaltrun/dsh-better-sidebar/client/service'
 import type {
   BetterSidebarService, FileViewerDescriptor, OpenTabSeed, SidebarSettingsRenderProps,
   TabComponentProps, TabDescriptor,
-} from 'dsh-better-sidebar/client/service'
-import type { SessionScope, SidebarSnapshot, SidebarState, SidebarStore, SidebarTab } from 'dsh-better-sidebar/client/service'
-import type { SidebarPrefs } from 'dsh-better-sidebar/client/service'
+} from '@gestaltrun/dsh-better-sidebar/client/service'
+import type { SessionScope, SidebarSnapshot, SidebarState, SidebarStore, SidebarTab } from '@gestaltrun/dsh-better-sidebar/client/service'
+import type { SidebarPrefs } from '@gestaltrun/dsh-better-sidebar/client/service'
 // The vendored-cordis path: `Context` from '@deepseek-ai/cordis' plus the
 // side-effect type import above must expose `ctx.betterSidebar` — the consumer
 // never needs to import this package's own Context type.
@@ -126,14 +126,14 @@ set -e
 # Fail only on errors that mention OUR package / declarations / the fixture.
 # Upstream noise (vendored cordis / cosmokit declaration warnings under the
 # repo's pinned TS lib) lives anywhere under node_modules and is filtered.
-if grep -E "dsh-better-sidebar|lib/types|check\.ts" "$WORK/strict.log" | grep -vE "node_modules/[^ ]*(cordis|cosmokit)"; then
-  echo "[check-consumer-types] FAIL: errors in the dsh-better-sidebar declaration surface:" >&2
-  grep -E "dsh-better-sidebar|lib/types|check\.ts" "$WORK/strict.log" >&2
+if grep -E "@gestaltrun/dsh-better-sidebar|lib/types|check\.ts" "$WORK/strict.log" | grep -vE "node_modules/[^ ]*(cordis|cosmokit)"; then
+  echo "[check-consumer-types] FAIL: errors in the @gestaltrun/dsh-better-sidebar declaration surface:" >&2
+  grep -E "@gestaltrun/dsh-better-sidebar|lib/types|check\.ts" "$WORK/strict.log" >&2
   exit 1
 fi
 if [ "$STATUS" -ne 0 ]; then
   echo "[check-consumer-types] pass 2 note: strict mode only reports upstream declaration noise:"
-  grep -v "dsh-better-sidebar\|lib/types\|check\.ts" "$WORK/strict.log" | head -5 || true
+  grep -v "@gestaltrun/dsh-better-sidebar\|lib/types\|check\.ts" "$WORK/strict.log" | head -5 || true
 fi
 echo "[check-consumer-types] OK: the client/service declaration surface is node-free and self-contained."
 
