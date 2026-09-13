@@ -50,6 +50,8 @@ jobs:
         run: pnpm run release:pack -- --out "$RUNNER_TEMP/gestalt-sidebar-package"
       - name: Build, verify, and publish artifact
         if: github.event_name == 'release' || inputs.publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: pnpm run release:publish -- --out "$RUNNER_TEMP/gestalt-sidebar-package"
       - uses: actions/upload-artifact@v4
         with:
