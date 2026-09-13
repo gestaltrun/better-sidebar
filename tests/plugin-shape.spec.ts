@@ -66,8 +66,8 @@ describe('dsh-better-sidebar plugin export shape', () => {
     // The terminal tools default OFF (the feature is dormant until the user
     // enables it in the side card settings).
     expect(resolved.agentTerminalTools).toBe(false)
-    // The sidebar-open tool defaults OFF too (same dormant-until-enabled rule).
-    expect(resolved.agentOpenTools).toBe(false)
+    // Sidebar-open tools are enabled independently of terminal tools.
+    expect(resolved.agentOpenTools).toBe(true)
     // The terminal font customizations default to the theme (empty family)
     // and 13px.
     expect(resolved.terminalFontFamily).toBe('')

@@ -90,14 +90,12 @@ describe('SideCardSection declarative inventory', () => {
     expect(html).toContain('>explorer<')
     expect(html).toContain('data-icon="subagent"')
     expect(html).toContain('>Subagents<')
-    // Default prefs: the general switch is off (agentOpenTools defaults off),
-    // and both tabs + the image viewer cards are pressed (3 aria-pressed
-    // cards).
+    // Both tabs and the image viewer are enabled.
     // The nested auto-open toggle is NOT an inline card (it lives in the popup).
     expect(pressedCount(html, 'true')).toBe(3)
     expect(pressedCount(html, 'false')).toBe(0)
-    // The general toggles are custom switches (real checkboxes, none checked).
-    expect(html.match(/checked=""/g)?.length ?? 0).toBe(0)
+    // The model-driven sidebar-open switch is enabled by default.
+    expect(html.match(/checked=""/g)?.length ?? 0).toBe(1)
     expect(html).not.toContain('Auto-open Subagents')
   })
 
@@ -153,9 +151,9 @@ describe('SideCardSection declarative inventory', () => {
     expect(html).toContain('>Subagents<')
     expect(html).toContain('>Image<')
     expect(pressedCount(html, 'false')).toBe(2)
-    // The explorer card stays pressed; no general switch is on by default.
+    // The explorer card and model-driven sidebar-open switch stay enabled.
     expect(pressedCount(html, 'true')).toBe(1)
-    expect(html.match(/checked=""/g)?.length ?? 0).toBe(0)
+    expect(html.match(/checked=""/g)?.length ?? 0).toBe(1)
   })
 
   it('hides the gear of a disabled feature (its related settings are dormant)', () => {
@@ -178,10 +176,9 @@ describe('SideCardSection declarative inventory', () => {
     expect(html).toContain('Pick the title-bar compatibility scheme: auto-detect (default, conservative) / DSH official web / known desktop shells / custom (shift distance + custom CSS)')
     expect(html).not.toContain('<select')
     expect(html).toContain('>Auto-detect<')
-    // One general-row switch remains (agentOpenTools), off by default — the
-    // scheme row is a dropdown, not a switch.
+    // The enabled general switch and the scheme dropdown use separate controls.
     expect(html.match(/type="checkbox"/g)?.length).toBe(1)
-    expect(html.match(/checked=""/g)?.length ?? 0).toBe(0)
+    expect(html.match(/checked=""/g)?.length ?? 0).toBe(1)
     // Auto (default) needs no further settings → no gear.
     expect(html).not.toContain('Position compatibility mode Feature settings')
 
