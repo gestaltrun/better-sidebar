@@ -33,8 +33,8 @@ export interface SidebarPrefs {
    * Whether the model-facing `sidebar_open` tool is injected into the
    * model's toolset — one tool that lets the model actively open a local
    * file, a local folder (as a tree rooted there), or an HTTP(S) page in
-   * the calling session's sidebar. Off by default: the feature stays
-   * dormant until the user explicitly enables it in the side card settings.
+   * the calling session's sidebar. On by default; disabling it in the
+   * side card settings removes the tool without closing existing tabs.
    */
   agentOpenTools: boolean
   /**
@@ -179,10 +179,9 @@ export interface SidebarPrefs {
   browserInterceptHttp: boolean
   /**
    * Whether clicking an https EXTERNAL link in the GUI opens the sidebar
-   * instead of a new browser tab. OFF by default — most https sites (e.g.
-   * GitHub) refuse iframe embedding, so the system browser is the smoother
-   * default; gated on the `browserInterceptLinks` master and the target
-   * tab's own enable switch.
+   * instead of a new browser tab. On by default; gated on the
+   * `browserInterceptLinks` master and the target tab's own enable switch.
+   * The target site's iframe embedding restrictions still apply.
    */
   browserInterceptHttps: boolean
   /**
@@ -242,7 +241,7 @@ export const SIDEBAR_PREFS_DEFAULTS: SidebarPrefs = {
   autoOpenSubagent: true,
   autoOpenJobs: true,
   agentTerminalTools: false,
-  agentOpenTools: false,
+  agentOpenTools: true,
   bottomPanelAutoTerminal: true,
   terminalFontFamily: '',
   terminalFontSize: TERMINAL_FONT_SIZE_DEFAULT,
@@ -260,7 +259,7 @@ export const SIDEBAR_PREFS_DEFAULTS: SidebarPrefs = {
   browserNoSandbox: false,
   browserInterceptLinks: true,
   browserInterceptHttp: true,
-  browserInterceptHttps: false,
+  browserInterceptHttps: true,
   browserAllowedLoopback: '',
   tabsEnabled: {},
   viewersEnabled: {},

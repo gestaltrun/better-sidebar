@@ -34,7 +34,7 @@ describe('side card preferences', () => {
       .toEqual({
         autoOpenSubagent: false,
         autoOpenJobs: true,
-        agentTerminalTools: true, agentOpenTools: false,
+        agentTerminalTools: true, agentOpenTools: true,
         bottomPanelAutoTerminal: true,
         terminalFontFamily: '',
         terminalFontSize: 13,
@@ -52,7 +52,7 @@ describe('side card preferences', () => {
         browserNoSandbox: false,
         browserInterceptLinks: true,
         browserInterceptHttp: true,
-        browserInterceptHttps: false,
+        browserInterceptHttps: true,
         browserAllowedLoopback: '',
         tabsEnabled: {},
         viewersEnabled: {},
@@ -65,7 +65,7 @@ describe('side card preferences', () => {
       .toEqual({
         autoOpenSubagent: true,
         autoOpenJobs: true,
-        agentTerminalTools: false, agentOpenTools: false,
+        agentTerminalTools: false, agentOpenTools: true,
         bottomPanelAutoTerminal: true,
         terminalFontFamily: '',
         terminalFontSize: 13,
@@ -83,7 +83,7 @@ describe('side card preferences', () => {
         browserNoSandbox: false,
         browserInterceptLinks: true,
         browserInterceptHttp: true,
-        browserInterceptHttps: false,
+        browserInterceptHttps: true,
         browserAllowedLoopback: '',
         tabsEnabled: {},
         viewersEnabled: {},
@@ -96,7 +96,7 @@ describe('side card preferences', () => {
       .toEqual({
         autoOpenSubagent: true,
         autoOpenJobs: true,
-        agentTerminalTools: false, agentOpenTools: false,
+        agentTerminalTools: false, agentOpenTools: true,
         bottomPanelAutoTerminal: true,
         terminalFontFamily: '',
         terminalFontSize: 13,
@@ -114,7 +114,7 @@ describe('side card preferences', () => {
         browserNoSandbox: false,
         browserInterceptLinks: true,
         browserInterceptHttp: true,
-        browserInterceptHttps: false,
+        browserInterceptHttps: true,
         browserAllowedLoopback: '',
         tabsEnabled: {},
         viewersEnabled: {},
@@ -129,13 +129,15 @@ describe('side card preferences', () => {
       .toBe(false)
     expect((await loadPrefs(wire({ agentTerminalTools: true }))).agentTerminalTools)
       .toBe(true)
-    // The sidebar-open tool is OFF by default too; only an explicit true turns it on.
+    // An explicit user choice can disable model-driven sidebar opens.
     expect((await loadPrefs(wire({}))).agentOpenTools)
-      .toBe(false)
-    expect((await loadPrefs(wire({ agentOpenTools: 1 }))).agentOpenTools)
-      .toBe(false)
-    expect((await loadPrefs(wire({ agentOpenTools: true }))).agentOpenTools)
       .toBe(true)
+    expect((await loadPrefs(wire({ agentOpenTools: 1 }))).agentOpenTools)
+      .toBe(true)
+    expect((await loadPrefs(wire({ agentOpenTools: false }))).agentOpenTools)
+      .toBe(false)
+    expect((await loadPrefs(wire({ browserInterceptHttps: false }))).browserInterceptHttps)
+      .toBe(false)
     // The job auto-open is ON by default; only an explicit false turns it off.
     expect((await loadPrefs(wire({ autoOpenJobs: 1 }))).autoOpenJobs)
       .toBe(true)
@@ -213,16 +215,16 @@ describe('side card preferences', () => {
     expect((await loadPrefs(wire({ titleBarStripPx: 64 }))).titleBarStripPx).toBe(64)
   })
 
-  it('defaults the link-takeover protocol flags: http on, https off, master on', async () => {
+  it('enables HTTP and HTTPS takeover by default and preserves explicit overrides', async () => {
     // Absent or malformed → the per-protocol defaults.
     expect((await loadPrefs(wire({}))).browserInterceptLinks).toBe(true)
     expect((await loadPrefs(wire({}))).browserInterceptHttp).toBe(true)
-    expect((await loadPrefs(wire({}))).browserInterceptHttps).toBe(false)
+    expect((await loadPrefs(wire({}))).browserInterceptHttps).toBe(true)
     expect((await loadPrefs(wire({ browserInterceptHttp: 'yes' }))).browserInterceptHttp).toBe(true)
-    expect((await loadPrefs(wire({ browserInterceptHttps: 0 }))).browserInterceptHttps).toBe(false)
+    expect((await loadPrefs(wire({ browserInterceptHttps: 0 }))).browserInterceptHttps).toBe(true)
     // Explicit booleans survive verbatim.
     expect((await loadPrefs(wire({ browserInterceptHttp: false }))).browserInterceptHttp).toBe(false)
-    expect((await loadPrefs(wire({ browserInterceptHttps: true }))).browserInterceptHttps).toBe(true)
+    expect((await loadPrefs(wire({ browserInterceptHttps: false }))).browserInterceptHttps).toBe(false)
     // The master is independent of the protocol flags (an explicit master
     // false stays "never take over" regardless of the flags).
     expect((await loadPrefs(wire({ browserInterceptLinks: false, browserInterceptHttp: true, browserInterceptHttps: true }))))

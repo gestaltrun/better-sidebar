@@ -994,7 +994,7 @@ describe('side card settings routes', () => {
       value: {
         autoOpenSubagent: true,
         autoOpenJobs: true,
-        agentTerminalTools: false, agentOpenTools: false,
+        agentTerminalTools: false, agentOpenTools: true,
         bottomPanelAutoTerminal: true,
         terminalFontFamily: '',
         terminalFontSize: 13,
@@ -1009,7 +1009,7 @@ describe('side card settings routes', () => {
         browserNoSandbox: false,
         browserInterceptLinks: true,
         browserInterceptHttp: true,
-        browserInterceptHttps: false,
+        browserInterceptHttps: true,
         browserAllowedLoopback: '',
         // The enable-switch maps default to {} (everything on).
         tabsEnabled: {},

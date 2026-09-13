@@ -318,8 +318,8 @@ export function builtinTabs(ctx: Context, options: BuiltinTabOptions = {}): read
       icon: browserTabIcon,
       order: 50,
       // Declarative settings: the sandbox escape hatch, the link-takeover
-      // MASTER switch, and the per-protocol takeover switches (http on /
-      // https off by default) render under this tab's row in the Side card
+      // MASTER switch, and the per-protocol takeover switches (HTTP and
+      // HTTPS on by default) render under this tab's row in the Side card
       // settings page (the sandbox one is warned on).
       settings: {
         toggles: [{
