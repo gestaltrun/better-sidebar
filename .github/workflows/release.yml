@@ -41,6 +41,7 @@ jobs:
           git config --global user.name "gestalt-sidebar-ci"
           git config --global user.email "ci@dsh.invalid"
       - run: pnpm install --frozen-lockfile
+      - run: pnpm build
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
