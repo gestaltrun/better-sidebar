@@ -97,7 +97,7 @@ function main() {
   if (command === 'publish') assertPublishContext(manifest, process.env)
   const tarball = pack(manifest, out)
   if (command === 'publish') {
-    run('npm', ['publish', tarball, '--ignore-scripts', '--provenance', '--access', 'public', '--registry', 'https://registry.npmjs.org/', '--tag', manifest.version.includes('-') ? 'next' : 'latest'])
+    run('npm', ['publish', tarball, '--ignore-scripts', '--provenance', '--access', 'public', '--registry', 'https://registry.npmjs.org/', '--tag', 'latest'])
   }
 }
 

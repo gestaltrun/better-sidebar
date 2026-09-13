@@ -6,8 +6,8 @@
 <!-- Hero -->
 <div align="center">
   <b style="font-size: 1.15em;">A service-oriented sidebar framework, and a complete workbench out of the box</b><br /><br />
-  <a href="https://www.npmjs.com/package/dsh-better-sidebar"><img alt="npm version" src="https://img.shields.io/npm/v/dsh-better-sidebar" /></a>
-  <a href="https://www.npmjs.com/package/dsh-better-sidebar"><img alt="npm downloads" src="https://img.shields.io/npm/dm/dsh-better-sidebar" /></a>
+  <a href="https://www.npmjs.com/package/@gestaltrun/dsh-better-sidebar"><img alt="npm version" src="https://img.shields.io/npm/v/@gestaltrun/dsh-better-sidebar" /></a>
+  <a href="https://www.npmjs.com/package/@gestaltrun/dsh-better-sidebar"><img alt="npm downloads" src="https://img.shields.io/npm/dm/@gestaltrun/dsh-better-sidebar" /></a>
   <a href="https://github.com/omdsh-dev/DSH-better-sidebar/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/omdsh-dev/DSH-better-sidebar/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="https://github.com/omdsh-dev/DSH-better-sidebar/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/omdsh-dev/DSH-better-sidebar" /></a>
   <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
@@ -69,9 +69,9 @@
 > 📌 **Stable release**: starting with `v0.19.0` the plugin targets DSH **0.1.5-rc.1+** (npm dist-tag `latest`; `v0.19.1` is verified end-to-end against **0.1.5-rc.2**, so rc.1 hosts need no DSH upgrade — the peer floor stays `^0.1.5-rc.1`). Hosts still on DSH 0.1.5-alpha.2 should stay pinned to `dsh-better-sidebar@0.19.0-alpha.1`; the 0.1.2-rc.1 stable line keeps using `dsh-better-sidebar@0.18.x`; DSH ≤ 0.1.1-rc.2 should use `dsh-better-sidebar@0.17.1`.
 
 ```sh
-dsh plugin --profile web add dsh-better-sidebar@latest   # first run fails: pnpm 11 blocks node-pty build scripts (the dependency is still written)
+dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@latest   # first run fails: pnpm 11 blocks node-pty build scripts (the dependency is still written)
 cd ~/.dsh/profiles/web && pnpm approve-builds --all      # allow the build scripts (re-runs the install automatically)
-dsh plugin --profile web add dsh-better-sidebar@latest   # re-run succeeds
+dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@latest   # re-run succeeds
 ```
 
 Then **hard-refresh the browser** (Cmd/Ctrl+Shift+R) to see the sidebar (DSH hot-reloads client changes; only host-half updates need a restart).
@@ -80,9 +80,9 @@ Then **hard-refresh the browser** (Cmd/Ctrl+Shift+R) to see the sidebar (DSH hot
 
 ```text
 Install the dsh-better-sidebar plugin (a sidebar workbench for DSH):
-1. Run: dsh plugin --profile web add dsh-better-sidebar@latest (the first run fails because pnpm 11 blocks node-pty build scripts — that's expected)
+1. Run: dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@latest (the first run fails because pnpm 11 blocks node-pty build scripts — that's expected)
 2. In ~/.dsh/profiles/web run: pnpm approve-builds --all (allows the build scripts and re-runs the install)
-3. Run the add command again: dsh plugin --profile web add dsh-better-sidebar@latest
+3. Run the add command again: dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@latest
 4. When done, remind me to hard-refresh the browser (Cmd/Ctrl+Shift+R)
 If anything fails, check the troubleshooting table in the README at https://github.com/omdsh-dev/DSH-better-sidebar
 ```
@@ -93,7 +93,7 @@ If anything fails, check the troubleshooting table in the README at https://gith
 <summary><b>Updating</b></summary>
 
 ```sh
-dsh plugin --profile web add dsh-better-sidebar@latest
+dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@latest
 ```
 
 or bump the version in `~/.dsh/profiles/web/package.json` (e.g. `"^0.16.1"`) and run `pnpm install`. Then hard-refresh the browser (Cmd/Ctrl+Shift+R) — client changes do not need a DSH restart.
@@ -111,7 +111,7 @@ or bump the version in `~/.dsh/profiles/web/package.json` (e.g. `"^0.16.1"`) and
 | Two sidebars on the page | Double-mount. Old hand-written line: `~/.dsh/profiles/web/cordis.patch.yml` still has `- insert: ... better-sidebar ...` — delete it (a same-id duplicate mount makes the loader fail loudly with `duplicate loader entry id`). When an aggregate bundle (e.g. `@linxin666/dsh-web-ui-all`) mounts this package under a **different** id, the plugin's own bundle patch backs off automatically since 0.13.x (it detects an already-enabled mount of the same package name and does not mount itself) — no manual fix needed; if it still double-mounts, make sure the aggregate bundle precedes `dsh-better-sidebar` in `dsh.profile.bundles`. |
 | Terminal fails on Windows | `node-pty` relies on prebuilt binaries; if none match your Node version, install a build toolchain (VS Build Tools). Mainstream Node versions are usually covered. |
 | Terminal shows "node-pty failed to load" | The `node-pty` install is missing or broken (e.g. pnpm skipped its build script). The terminal banner shows a repair command — copy it into a terminal/cmd on the DSH machine and run it (in `~/.dsh/profiles/web`: `pnpm approve-builds --all && pnpm rebuild node-pty`), then restart DSH and click Retry. The plugin and DSH core share the same `node-pty@^1.1.0`, so the repair restores both. |
-| `dsh: command not found` | Install DSH first, or run `npx -y --package @deepseek-ai/dsh dsh plugin --profile web add dsh-better-sidebar@latest`. |
+| `dsh: command not found` | Install DSH first, or run `npx -y --package @deepseek-ai/dsh dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@latest`. |
 
 </details>
 
@@ -137,7 +137,7 @@ To debug local changes or track the dev branch, point the dependency at a local 
 5. Restart DSH and hard-refresh
 ```
 
-Update: `git pull && pnpm install && pnpm build` → just hard-refresh the browser (client changes hot-reload; only host-half changes need a DSH restart). To switch back to the npm channel, restore `"dsh-better-sidebar": "^0.16.1"` and re-run `pnpm install`.
+Update: `git pull && pnpm install && pnpm build` → just hard-refresh the browser (client changes hot-reload; only host-half changes need a DSH restart). To switch back to the npm channel, restore `"@gestaltrun/dsh-better-sidebar": "0.19.1-gestaltrun.0"` and re-run `pnpm install`.
 
 </details>
 
@@ -176,7 +176,7 @@ Update: `git pull && pnpm install && pnpm build` → `node scripts/package-regis
 The `ctx.betterSidebar` service opens two extension points to every plugin: **`registerTab` (sidebar pages)** and **`registerFileViewer` (file previewers)**. The 8 built-in tabs + 6 viewers register through the exact same API — fully equal capabilities.
 
 ```ts
-import type {} from 'dsh-better-sidebar'  // triggers the ctx.betterSidebar type merge
+import type {} from '@gestaltrun/dsh-better-sidebar'  // triggers the ctx.betterSidebar type merge
 export const inject = ['betterSidebar']
 export function apply(ctx: Context) {
   ctx.effect(() => ctx.betterSidebar.registerTab({

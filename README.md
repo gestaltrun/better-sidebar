@@ -6,8 +6,8 @@
 <!-- Hero -->
 <div align="center">
   <b style="font-size: 1.15em;">一个服务化的侧边栏框架，一套开箱即用的完整工作台</b><br /><br />
-  <a href="https://www.npmjs.com/package/dsh-better-sidebar"><img alt="npm version" src="https://img.shields.io/npm/v/dsh-better-sidebar" /></a>
-  <a href="https://www.npmjs.com/package/dsh-better-sidebar"><img alt="npm downloads" src="https://img.shields.io/npm/dm/dsh-better-sidebar" /></a>
+  <a href="https://www.npmjs.com/package/@gestaltrun/dsh-better-sidebar"><img alt="npm version" src="https://img.shields.io/npm/v/@gestaltrun/dsh-better-sidebar" /></a>
+  <a href="https://www.npmjs.com/package/@gestaltrun/dsh-better-sidebar"><img alt="npm downloads" src="https://img.shields.io/npm/dm/@gestaltrun/dsh-better-sidebar" /></a>
   <a href="https://github.com/omdsh-dev/DSH-better-sidebar/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/omdsh-dev/DSH-better-sidebar/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="https://github.com/omdsh-dev/DSH-better-sidebar/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/omdsh-dev/DSH-better-sidebar" /></a>
   <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
@@ -69,9 +69,9 @@
 > 📌 **正式版**：`v0.19.0` 起适配 DSH **0.1.5-rc.1+**（npm dist-tag `latest`；`v0.19.1` 已在 **0.1.5-rc.2** 上完成真机挂载验证，rc.1 用户无需升级即可用本版——peer 下限仍是 `^0.1.5-rc.1`）。仍停在 DSH 0.1.5-alpha.2 的用户请固定安装 `dsh-better-sidebar@0.19.0-alpha.1`；0.1.2-rc.1 稳定线用户继续用 `dsh-better-sidebar@0.18.x`；DSH ≤ 0.1.1-rc.2 请用 `dsh-better-sidebar@0.17.1`。
 
 ```sh
-dsh plugin --profile web add dsh-better-sidebar@latest   # 首次会因 pnpm 11 拦截 node-pty 构建脚本而失败（依赖已写入）
+dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@latest   # 首次会因 pnpm 11 拦截 node-pty 构建脚本而失败（依赖已写入）
 cd ~/.dsh/profiles/web && pnpm approve-builds --all      # 放行构建脚本（自动重跑安装）
-dsh plugin --profile web add dsh-better-sidebar@latest   # 重跑即成功
+dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@latest   # 重跑即成功
 ```
 
 装完**硬刷新浏览器**（Cmd/Ctrl+Shift+R）即可看到侧边栏（DSH 对 client 改动热加载，无需重启；仅 host 半更新时需要重启）。
@@ -80,9 +80,9 @@ dsh plugin --profile web add dsh-better-sidebar@latest   # 重跑即成功
 
 ```text
 帮我安装 dsh-better-sidebar 插件（DSH 侧边栏工作台），步骤：
-1. 执行 dsh plugin --profile web add dsh-better-sidebar@latest（首次会被 pnpm 11 拦截 node-pty 构建脚本而失败，属正常）
+1. 执行 dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@latest（首次会被 pnpm 11 拦截 node-pty 构建脚本而失败，属正常）
 2. 在 ~/.dsh/profiles/web 下执行 pnpm approve-builds --all（放行构建脚本，会自动重跑安装）
-3. 再次执行 dsh plugin --profile web add dsh-better-sidebar@latest
+3. 再次执行 dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@latest
 4. 完成后提醒我硬刷新浏览器（Cmd/Ctrl+Shift+R）
 遇到报错先查 https://github.com/omdsh-dev/DSH-better-sidebar README 的常见问题表。
 ```
@@ -93,7 +93,7 @@ dsh plugin --profile web add dsh-better-sidebar@latest   # 重跑即成功
 <summary><b>更新</b></summary>
 
 ```sh
-dsh plugin --profile web add dsh-better-sidebar@latest
+dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@latest
 ```
 
 也可把 `~/.dsh/profiles/web/package.json` 里的版本号改高后 `pnpm install`。改完**硬刷新浏览器**（Cmd/Ctrl+Shift+R）即可（client 改动无需重启 DSH）。
@@ -111,7 +111,7 @@ dsh plugin --profile web add dsh-better-sidebar@latest
 | 页面出现**两个侧边栏** | 双挂载。旧的手动挂载行：`~/.dsh/profiles/web/cordis.patch.yml` 还留着 `- insert: ... better-sidebar ...`，删掉那段（同 id 重复挂载 loader 会直接报 `duplicate loader entry id`）。聚合包（如 `@linxin666/dsh-web-ui-all`）以**不同 id** 挂载本包时，0.13.x 起插件自身 bundle patch 会自动退让（检测到已有启用中的同包名挂载就不挂自己），无需手动处理；若仍双挂载，先确认聚合包的 bundle 顺序在 `dsh-better-sidebar` 之前。 |
 | Windows 下终端无法使用 | `node-pty` 依赖预编译二进制；若当前 Node 版本没有对应产物，需装编译工具链（VS Build Tools）。主流 Node 版本一般已有预编译。 |
 | 终端提示「node-pty 加载失败」 | `node-pty` 安装缺失/损坏（如 pnpm 拦截了构建脚本）。终端横幅会给出修复命令：复制到 DSH 所在环境的终端/cmd 执行（在 `~/.dsh/profiles/web` 下 `pnpm approve-builds --all && pnpm rebuild node-pty`），完成后重启 DSH 并点重试。插件与 DSH 核心使用同一 `node-pty@^1.1.0`，修复后两者同步恢复。 |
-| 提示 `dsh: command not found` | 先安装 DSH；或直接用 `npx -y --package @deepseek-ai/dsh dsh plugin --profile web add dsh-better-sidebar@latest`。 |
+| 提示 `dsh: command not found` | 先安装 DSH；或直接用 `npx -y --package @deepseek-ai/dsh dsh plugin --profile web add @gestaltrun/dsh-better-sidebar@latest`。 |
 
 </details>
 
@@ -137,7 +137,7 @@ dsh plugin --profile web add dsh-better-sidebar@latest
 5. 硬刷新浏览器（Cmd/Ctrl+Shift+R）即可看到效果（client 改动无需重启 DSH；host 半改动才需重启）
 ```
 
-更新：`git pull && pnpm install && pnpm build` → 硬刷新浏览器即可（client 改动热加载生效，无需重启 DSH；host 半改动才需重启）。切回 npm 通道时，把依赖改回 `"dsh-better-sidebar": "^0.16.1"` 再 `pnpm install`。
+更新：`git pull && pnpm install && pnpm build` → 硬刷新浏览器即可（client 改动热加载生效，无需重启 DSH；host 半改动才需重启）。切回 npm 通道时，把依赖改回 `"@gestaltrun/dsh-better-sidebar": "0.19.1-gestaltrun.0"` 再 `pnpm install`。
 
 </details>
 
@@ -176,7 +176,7 @@ dsh registry enable dsh-external/dsh-better-sidebar
 `ctx.betterSidebar` 服务向所有插件开放两个扩展点：**`registerTab`（注册侧边栏页面）** 与 **`registerFileViewer`（注册文件预览器）**。内置的 8 tab + 6 viewer 与第三方插件走同一套 API，能力完全对等。
 
 ```ts
-import type {} from 'dsh-better-sidebar'  // 触发 ctx.betterSidebar 类型合并
+import type {} from '@gestaltrun/dsh-better-sidebar'  // 触发 ctx.betterSidebar 类型合并
 export const inject = ['betterSidebar']
 export function apply(ctx: Context) {
   ctx.effect(() => ctx.betterSidebar.registerTab({
