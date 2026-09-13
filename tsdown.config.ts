@@ -45,7 +45,7 @@ import { basename, dirname, join, relative, resolve as resolvePath, sep } from '
 import { builtinModules, createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import type { UserConfig } from 'tsdown'
-import { transform } from 'lightningcss'
+import { compileCssModule } from './scripts/css-modules.ts'
 
 const require = createRequire(import.meta.url)
 
@@ -302,16 +302,9 @@ function makeCssPlugin(pluginId: string): BuildPlugin {
       // CSS Modules (x.module.css) become hashed class maps; plain css
       // (xterm's stylesheet) is inlined verbatim.
       if (fileId.endsWith('.module.css')) {
-        const { code, exports: cssExports } = transform({
-          filename: fileId,
-          code: source,
-          cssModules: { pattern: `[hash]_[local]` },
-          minify: true,
-        })
-        const classMap: Record<string, string> = {}
-        for (const [local, exp] of Object.entries(cssExports ?? {})) classMap[local] = exp.name
+        const { cssText, classMap } = compileCssModule(fileId, source, REPOSITORY_ROOT)
         return [
-          injectTag(pluginId, fileId, code.toString()),
+          injectTag(pluginId, fileId, cssText),
           `export default ${JSON.stringify(classMap)};`,
         ].join('\n')
       }

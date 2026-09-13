@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
+import { CHUNK_NAMES } from '../src/bundle-route.ts'
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -28,7 +29,7 @@ const LIFECYCLE_SCRIPTS = ['preinstall', 'install', 'postinstall', 'prepare'] as
 const EXACT_SEMVER = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u
 
 /** Read `package.json` from a fresh `pnpm pack` tarball (the publish surface). */
-function packedManifest(): Record<string, unknown> {
+function packedPackage(): { manifest: Record<string, unknown>; files: string[] } {
   const dir = mkdtempSync(join(tmpdir(), 'market-pack-'))
   try {
     // On Windows `pnpm` ships as a `.cmd` shim that `execFileSync` cannot
@@ -39,9 +40,16 @@ function packedManifest(): Record<string, unknown> {
     // drive-letter colon as a remote-host spec ("Cannot connect to C:").
     // Run it from the pack dir with the bare tarball name instead.
     execFileSync('tar', ['-xzf', `${pkg.name.replace(/^@/u, '').replace('/', '-')}-${pkg.version}.tgz`, 'package/package.json'], { cwd: dir, stdio: 'pipe' })
-    return JSON.parse(readFileSync(join(dir, 'package/package.json'), 'utf8')) as Record<string, unknown>
+    const files = execFileSync('tar', ['-tzf', `${pkg.name.replace(/^@/u, '').replace('/', '-')}-${pkg.version}.tgz`], { cwd: dir, encoding: 'utf8' }).trim().split('\n')
+    return { manifest: JSON.parse(readFileSync(join(dir, 'package/package.json'), 'utf8')) as Record<string, unknown>, files }
   } finally {
     rmSync(dir, { recursive: true, force: true })
+  }
+}
+
+function assertLazyChunks(files: readonly string[]): void {
+  for (const name of CHUNK_NAMES) {
+    if (!files.includes(`package/lib/client-${name}.js`)) throw new Error(`Missing declared lazy chunk: ${name}`)
   }
 }
 
@@ -55,10 +63,18 @@ describe('DSH community-market manifest compatibility', () => {
   })
 
   it('declares no install lifecycle scripts in the PACKED manifest (the published surface)', () => {
-    const packed = packedManifest()
+    const { manifest: packed } = packedPackage()
     const scripts = (packed.scripts as Record<string, string> | undefined) ?? {}
     for (const script of LIFECYCLE_SCRIPTS) {
       expect(scripts, script).not.toHaveProperty(script)
+    }
+  }, 180000)
+
+  it('packs every lazy chunk declared by the host, including the locale dictionaries', () => {
+    const { files } = packedPackage()
+    assertLazyChunks(files)
+    for (const name of CHUNK_NAMES) {
+      expect(() => assertLazyChunks(files.filter(file => file !== `package/lib/client-${name}.js`))).toThrow(`Missing declared lazy chunk: ${name}`)
     }
   }, 180000)
 

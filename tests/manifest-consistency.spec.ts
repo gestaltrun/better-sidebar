@@ -19,6 +19,7 @@ import { describe, expect, it } from 'vitest'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { CHUNK_NAMES } from '../src/bundle-route.ts'
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -71,7 +72,7 @@ function bundleId(file: string): string {
 }
 
 /** The lazy chunk bundle names (mirror of src/bundle-route.ts CHUNK_NAMES). */
-const CHUNK_FILES = ['terminal', 'editor', 'mermaid'].map(name => `lib/client-${name}.js`)
+const CHUNK_FILES = CHUNK_NAMES.map(name => `lib/client-${name}.js`)
 
 /** The global registry slot a built chunk script assigns (its factory key). */
 function chunkSlot(file: string): string {

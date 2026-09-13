@@ -70,7 +70,7 @@ function pack(manifest, out) {
   run('pnpm', ['run', 'build'])
   run('pnpm', ['run', 'check:consumer-types'])
   run('pnpm', ['run', 'test:release'])
-  run('pnpm', ['exec', 'vitest', 'run', 'tests/market-manifest.spec.ts', 'tests/manifest-consistency.spec.ts'])
+  run('pnpm', ['exec', 'vitest', 'run', 'tests/market-manifest.spec.ts', 'tests/manifest-consistency.spec.ts', 'tests/css-modules.spec.ts'])
   mkdirSync(out, { recursive: true })
   run('pnpm', ['pack', '--pack-destination', out])
   if (!existsSync(tarball)) throw new Error(`Expected artifact missing: ${tarball}`)
