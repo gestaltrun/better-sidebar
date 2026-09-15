@@ -40,7 +40,9 @@ function packedPackage(): { manifest: Record<string, unknown>; files: string[] }
     // drive-letter colon as a remote-host spec ("Cannot connect to C:").
     // Run it from the pack dir with the bare tarball name instead.
     execFileSync('tar', ['-xzf', `${pkg.name.replace(/^@/u, '').replace('/', '-')}-${pkg.version}.tgz`, 'package/package.json'], { cwd: dir, stdio: 'pipe' })
-    const files = execFileSync('tar', ['-tzf', `${pkg.name.replace(/^@/u, '').replace('/', '-')}-${pkg.version}.tgz`], { cwd: dir, encoding: 'utf8' }).trim().split('\n')
+    // Windows tar emits CRLF listings and may print backslashes; keep POSIX archive paths.
+    const files = execFileSync('tar', ['-tzf', `${pkg.name.replace(/^@/u, '').replace('/', '-')}-${pkg.version}.tgz`], { cwd: dir, encoding: 'utf8' })
+      .split(/\r?\n/u).map(entry => entry.trim().replaceAll('\\', '/')).filter(entry => entry.length > 0)
     return { manifest: JSON.parse(readFileSync(join(dir, 'package/package.json'), 'utf8')) as Record<string, unknown>, files }
   } finally {
     rmSync(dir, { recursive: true, force: true })
